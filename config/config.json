@@ -1,0 +1,12 @@
+{
+    "loggingDevices" [
+        {
+            "id": "01",
+            "constructor_args": {
+                "interval": 2,
+                "pin": 10
+            }
+
+        }
+    ]
+}

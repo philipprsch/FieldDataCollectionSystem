@@ -2,12 +2,8 @@ import machine
 import time
 import dht
 
-class DH11:
-  def __init__(self, name, age):
-    self.name = name
-    self.age = age
-# Initialize DHT11 sensor (GPIO 22)
-sensor = dht.DHT11(machine.Pin(22))
+
+sensor = dht.DHT11(machine.Pin(10))
 
 while True:
     try:

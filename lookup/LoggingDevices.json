@@ -1,0 +1,17 @@
+{
+    "01" : {
+        "name" : "DHT 11",
+        "type": "sensor",
+        "description": "Low-cost Air Temperature and Humidity sensor",
+        "module_dependencies": ["dht"],
+        "constructor_args_defaults": {
+            "interval": 5
+        }
+    },
+    "02" : {
+        "name" : "DS18B20",
+        "type": "sensor",
+        "description": "Digital temperature sensor",
+        "module_dependencies": ["ds18b20"]
+    }
+}
