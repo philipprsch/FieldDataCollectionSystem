@@ -1,12 +1,15 @@
 from machine import Pin
 from time import sleep
 import os
+import uasyncio
 
-print(os.listdir())
+led = Pin("LED", Pin.OUT)
 
-led = Pin('LED', Pin.OUT)
-print('Blinking LED Example')
+async def blink():
+    while True:
+        led.toggle()
+        await uasyncio.sleep_ms(500)
 
-while True:
-  led.value(not led.value())
-  sleep(0.5)
+loop = uasyncio.get_event_loop()
+loop.create_task(blink())
+loop.run_forever()

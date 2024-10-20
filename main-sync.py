@@ -1,3 +1,8 @@
+
+################################################################
+#Synchronous version of System TODO: WOrk on this later (if asynchronous version fails)
+################################################################
+
 import uasyncio as asyncio
 import machine
 import lib.sdcard as sdcard

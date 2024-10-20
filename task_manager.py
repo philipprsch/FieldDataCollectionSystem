@@ -13,7 +13,7 @@ class TaskManager:
             await method(identifier)
             await asyncio.sleep(interval)
 
-    async def add_task(self, identifier, method, interval):
+    def add_task(self, identifier, method, interval):
         """
         Add a method (task) to run at a regular interval.
         

@@ -4,14 +4,17 @@
         "type": "sensor",
         "description": "Low-cost Air Temperature and Humidity sensor",
         "module_dependencies": ["dht"],
-        "constructor_args_defaults": {
+        "constructor_arg_defaults": {
             "interval": 5
         }
     },
     "02" : {
-        "name" : "DS18B20",
+        "name" : "MPU6050",
         "type": "sensor",
-        "description": "Digital temperature sensor",
-        "module_dependencies": ["ds18b20"]
+        "description": "Accelerometer and Gyroscope",
+        "module_dependencies": [""],
+        "constructor_arg_defaults": {
+            "interval": 5
+        }
     }
 }
