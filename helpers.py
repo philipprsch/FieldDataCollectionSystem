@@ -43,7 +43,8 @@ def does_folder_exist(directory):
 def append_to_file(filename, data):
     with open(filename, "a") as file:  # 'a' mode for appending
         file.write(data)
-        print(f"Data '{data}' appended to {filename}")
+        #print(f"Data '{data}' appended to {filename}")
+        print("DATA appended")
 
 # Read from file
 def read_file(filename):
@@ -56,3 +57,12 @@ def read_file(filename):
     except OSError:
         print(f"{filename} does not exist yet.")
         return ""
+
+#Time functions
+
+def get_readable_time(datetime_tuple):
+    year, month, day, weekday, hours, minutes, seconds = datetime_tuple
+
+    # Format time
+    return f"{day:02d}/{month:02d}/{day:02d} {hours:02d}:{minutes:02d}:{seconds:02d}"
+    #return f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}"

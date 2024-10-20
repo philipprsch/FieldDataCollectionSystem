@@ -19,7 +19,17 @@
                 "sda": 14,
                 "scl": 15
             }
+        },
+        {
+            "id":"03",
+            "alias": "03-0",
+            "info": "e.g.: Rain Volume",
+            "constructor_args": {
+                "interval": 10,
+                "pin": 5,
+                "mmPerHigh": 2.5
         }
+    }
     ],
     "connectivity": {},
     "storage": {

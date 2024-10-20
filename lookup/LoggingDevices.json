@@ -16,5 +16,16 @@
         "constructor_arg_defaults": {
             "interval": 5
         }
+    },
+    "03" : {
+        "name" : "Percipitation Sensor",
+        "type": "sensor",
+        "description": "Measures percipitation in mm",
+        "module_dependencies": [""],
+        "constructor_arg_defaults": {
+            "interval": 10,
+            "pin": 5,
+            "mmPerHigh": 2.5
+        }
     }
 }

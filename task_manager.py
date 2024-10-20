@@ -10,7 +10,8 @@ class TaskManager:
     async def _run_at_interval(self, identifier, interval, method):
         """Runs the given method at the specified interval."""
         while True:
-            await method(identifier)
+            #await method(identifier)
+            method()
             await asyncio.sleep(interval)
 
     def add_task(self, identifier, method, interval):
