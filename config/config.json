@@ -1,0 +1,47 @@
+{
+    "loggingDevices" : [
+        {
+            "id": "01",
+            "alias": "01-0",
+            "info": "e.g.: Temp ontop of solar panel",
+            "constructor_args": {
+                "interval": 2,
+                "pin": 10
+            }
+
+        },
+        {
+            "id":"02",
+            "alias": "02-0",
+            "info": "e.g.: Wind direction",
+            "constructor_args": {
+                "interval": 3,
+                "sda": 14,
+                "scl": 15
+            }
+        },
+        {
+            "id":"03",
+            "alias": "03-0",
+            "info": "e.g.: Rain Volume",
+            "constructor_args": {
+                "interval": 10,
+                "pin": 5,
+                "mmPerPulse": 2.5
+        }
+        },
+        {
+            "id":"04",
+            "alias": "04-0",
+            "info": "Rain Drop Sensor",
+            "constructor_args": {
+                "interval": 10,
+                "pin": 4
+            }
+        }
+    ],
+    "connectivity": {},
+    "storage": {
+        "log_file_path": "log.csv"
+    }
+}
