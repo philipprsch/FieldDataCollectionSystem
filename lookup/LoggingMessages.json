@@ -1,6 +1,0 @@
-{
-    "01": {
-        "structure": ["id", "Temperature in Celcius", "Hmidity in RH%"],
-        "human_log_message": "DHT 11 measured {} degrees and {} humidity"
-    }
-}
