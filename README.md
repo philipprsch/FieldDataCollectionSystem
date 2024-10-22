@@ -2,6 +2,10 @@
 
 This system is designed to periodically and asynchronously gather sensor data from various logging devices (sensors) at custom, individually set intervals. The logged data is saved onto an SD card for (optional) further processing or analysis. All configuration parameters are customizable and stored in a JSON configuration file.
 
+!["Breadboard"](https://github.com/philipprsch/FieldDataCollectionSystem/blob/main/images/breadboard_overview.png)
+!["Physical"](https://github.com/philipprsch/FieldDataCollectionSystem/blob/main/images/physical_overview.png)
+!["Wiring"](https://github.com/philipprsch/FieldDataCollectionSystem/blob/main/images/wiring_overview.png)
+
 ## Table of Contents
 - [Configuration](#configuration)
 - [Logging Devices](#logging-devices)
