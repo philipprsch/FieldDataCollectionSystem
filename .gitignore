@@ -1,13 +1,2 @@
-*.py
-!main.py
-!task_manager.py
-!helpers.py
-!accelerometer.py
-!lib/*
 
-
-readme.txt
-.micropico
 .vscode/
-
-data/

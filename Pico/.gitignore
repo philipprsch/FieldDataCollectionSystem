@@ -1,0 +1,11 @@
+*.py
+!main.py
+!task_manager.py
+!helpers.py
+!accelerometer.py
+!lib/*
+
+.micropico
+
+
+data/
