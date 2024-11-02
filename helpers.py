@@ -1,6 +1,7 @@
 import ujson
 import sys
 import uos
+from machine import Pin, I2C, UART
 
 def read_json(file_path):
     try:
@@ -66,3 +67,72 @@ def get_readable_time(datetime_tuple):
     # Format time
     return f"{day:02d}/{month:02d}/{day:02d} {hours:02d}:{minutes:02d}:{seconds:02d}"
     #return f"{year:04d}-{month:02d}-{day:02d} {hour:02d}:{minute:02d}:{second:02d}"
+
+
+#Only make one I2C insatnce per bus
+_i2c_instances = {}
+
+def get_i2c_instance(bus=0, scl_pin=None, sda_pin=None, freq=400000):
+    global _i2c_instances
+    
+    # Define default pins for each bus (for Raspberry Pi Pico)
+    default_pins = {
+        0: {'scl': 21, 'sda': 20},  # I2C0 default pins on the Pico (GP21=SCL, GP20=SDA)
+        1: {'scl': 27, 'sda': 26},  # I2C1 default pins on the Pico (GP27=SCL, GP26=SDA)
+    }
+    
+    # Check if the instance for the requested bus already exists
+    if bus in _i2c_instances:
+            #NOTE: Here one could check if an object using the sam bus but other pins has already been initialized
+            return _i2c_instances[bus]
+    
+    # Use default pins if none are provided
+    if scl_pin is None:
+        scl_pin = default_pins[bus]['scl']
+    if sda_pin is None:
+        sda_pin = default_pins[bus]['sda']
+    
+    # Create a new I2C instance for the bus and store it in the dictionary
+    _i2c_instances[bus] = I2C(bus, scl=Pin(scl_pin), sda=Pin(sda_pin), freq=freq)
+    
+    return _i2c_instances[bus]
+
+_UART_instances = {}
+
+def get_UART_instance(self, id, *args, **kwargs): #Kwargs may include Bits, Parity, Stop
+    if (id in _UART_instances):
+        return _UART_instances[id]
+    default_pins = {
+        0: {'tx': 0, 'rx': 1}, 
+        1: {'tx': 4, 'rx': 5}
+    }
+    _UART_instances[id] = UART(baudrate=9600)
+    _UART_instances[id].init(id, **( {"bits":8, "parity":None, "stop":1, "timeout": 2000} | default_pins[id] | kwargs))
+    return _UART_instances[id]
+        
+
+#Exception handeling
+import traceback
+
+# Define a function to log errors to a file
+MAX_LOG_SIZE = 1024 * 1024  # 1 MB
+
+def log_exception(e, datetime, msg=None):
+    if (msg is not None): print(msg)
+    print(f"Exception: {str(e)} was logged to file")
+
+    log_file = '/error_log.txt'
+    
+    # Check the size of the log file
+    if uos.stat(log_file)[6] > MAX_LOG_SIZE:
+        uos.rename(log_file, '/error_log_old.txt')  # Archive the old log
+
+    try:
+        with open(log_file, 'a') as f:
+            f.write('--- Exception occurred on {} ---\n'.format(datetime))
+            if msg: f.write(msg + '\n')
+            f.write(str(e) + '\n')
+            f.write(traceback.format_exc() + '\n')
+            f.write('\n')
+    except Exception as log_error:
+        print("Failed to log exception:", log_error)

@@ -38,10 +38,34 @@
                 "interval": 10,
                 "pin": 4
             }
+        },
+        {
+            "id":"20",
+            "alias": "20-0",
+            "info": "Wind direction (Serial)",
+            "constructor_args": {
+                "interval": 10,
+                "tx": 0,
+                "rx": 1,
+                "bus": 0,
+                "pins": {
+                    "pin0deg": 4,
+                    "pin45deg": 5,
+                    "pin90deg": 6,
+                    "pin135deg": 7,
+                    "pin180deg": 8,
+                    "pin225deg": 9,
+                    "pin270deg": 10,
+                    "pin315deg": 11
+                }
+            }
         }
     ],
     "connectivity": {},
     "storage": {
-        "log_file_path": "log.csv"
+        "log_file_path": "sd/log.csv"
+    },
+    "others": {
+        "external_rtc": true
     }
 }

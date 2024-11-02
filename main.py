@@ -1,13 +1,14 @@
 import uasyncio as asyncio
 import machine
+
+import ujson
 import lib.sdcard as sdcard
 import uos  # Use uos instead of os for MicroPython
-from machine import RTC, I2C, Pin, ADC
+from machine import RTC, Pin, ADC, UART
 import time
+from lib.ds1307 import DS1307 #External RTC Module
 from task_manager import TaskManager
-from helpers import read_json, dynamic_import, append_to_file, read_file, does_folder_exist, get_readable_time
-
-#Only to supress error, should be dinamically imported
+from helpers import read_json, dynamic_import, append_to_file, read_file, does_folder_exist, get_readable_time, get_i2c_instance, log_exception, get_UART_instance
 import dht 
 from accelerometer import MPU6050_Accelerometer
 #Read LoggingDevices file
@@ -15,9 +16,16 @@ logging_devices = read_json("lookup/LoggingDevices.json")
 print(logging_devices)
 
 config = read_json("config/config.json")
-if config is None: OSError("No configuration file found")
+if config is None: raise OSError("No configuration file found")
 
-rtc = RTC() #Use onbaord Pico RTC, can be replaced by external RTC Module
+rtc = RTC() #Use onbaord Pico RTC, can be supplemented by external RTC Module
+
+if (config != None and config["others"]["external_rtc"]):
+    #Initialize and update onboard RTC module
+    rtc_i2c = get_i2c_instance(1, 15, 14, freq=400000)
+    ext_rtc = DS1307(rtc_i2c)
+    ext_rtc.halt(False) # 32 khz crystal enable
+    rtc.datetime(ext_rtc.datetime())
 
 spi = machine.SPI(0,
                   baudrate=100000,
@@ -62,7 +70,7 @@ class LoggingDevice():
         asyncio.create_task(self.handle())  #Intended to run continuously if there is such need for the LoggingDevice to work properly
         if logging_devices is not None:
             self.info = logging_devices[self.id]
-        self.importDependancies()
+        self.importDependancies() #TODO: fix this
 
     def log(self, message):
         dt = get_readable_time(rtc.datetime()[:7])
@@ -73,7 +81,7 @@ class LoggingDevice():
         if config is not None:
             append_to_file(config["storage"]["log_file_path"], str(logTuple)+",")
 
-    async def handle(self): #Will be run continuously in event loop if defined
+    async def handle(self): #Will be run continuously in event loop if defined in child classes
         pass
 
     @classmethod
@@ -110,8 +118,9 @@ class DHT11_LoggingDevice(LoggingDevice):
             return (temperature, humidity)
             #print("DHT-11 Temperature: {}°C  Humidity: {}%".format(temperature, humidity))
 
-        except OSError as e:
-            print("DHT-11 Failed to read sensor data: ", e)
+        except Exception as e:
+            log_exception(e, rtc.datetime(), msg="DHT-11 failed measurement")
+            return None
 
     def log(self):
         measurement = self.measurement()
@@ -123,12 +132,15 @@ class MPU6050_LoggingDevice(LoggingDevice):
     class_id = "02"
     def __init__(self, alias, scl, sda, interval, *args, **kwargs):
         super().__init__(alias, interval)
-        self.i2c = I2C(1, sda=Pin(sda), scl=Pin(scl), freq=400000)
+        self.i2c = get_i2c_instance(1, scl, sda, freq=400000)
         self.sensor = MPU6050_Accelerometer(self.i2c)
     
     def log(self):
-        acc_x, acc_y, acc_z = self.sensor.get_acceleration()
-        super().log((acc_x, acc_y, acc_z))
+        try:
+            acc_x, acc_y, acc_z = self.sensor.get_acceleration()
+            super().log((acc_x, acc_y, acc_z))
+        except Exception as e:
+            log_exception(e, rtc.datetime(), msg="MPU6050 failed measurement")
 
 @register_child
 class Regenmesser_LoggingDevice(LoggingDevice):
@@ -165,7 +177,8 @@ class Regenmesser_LoggingDevice(LoggingDevice):
 @register_child
 class GenericDigitalPin_LoggingDevice(LoggingDevice): #NOTE: Used by raindrop, etc. sensors
     class_id = "04"
-    def __init__(self, pin):
+    def __init__(self, alias, interval, pin):
+        super().__init__(alias, interval)
         self.debounce_time = 0
         self.pin = Pin(pin, Pin.IN, Pin.PULL_DOWN)
 
@@ -175,18 +188,39 @@ class GenericDigitalPin_LoggingDevice(LoggingDevice): #NOTE: Used by raindrop, e
 @register_child
 class GenericAnalogPin_LoggingDevice(LoggingDevice): #NOTE: Used by Soil Temp. , inbuilt Pico Tmep. , etc. analog sensors
     class_id = "05"
-    def __init__(self, pin): #Must be a pin that supports analog input (26, 27, 28) + 29 (VSYS)
+    def __init__(self, alias, interval, pin): #Must be a pin that supports analog input (26, 27, 28) + 29 (VSYS)
+        super().__init__(alias, interval)
         self.pin = ADC(Pin(pin))
 
     def log(self):
         return super().log((self.pin.read_u16()))
+
+@register_child
+class WindDirection_LoggingDeviceSerial(LoggingDevice):
+    class_id = "20"
+    def __init__(self, alias, bus, tx, rx, interval, pins, *args, **kwargs):
+        super().__init__(alias, interval)
+        self.uart = get_UART_instance(bus, {"tx": tx, "rx": rx})
+
+        data = ""
+        for key, value in pins.items(): #NOTE: Sorting of pin declarations in JSON file is IMPORTANT!
+            data += value + ","
+        data = data[:-1]
+        self.uart.write("_setup\n"+self.id+","+self.alias+","+data+"\n") #Command \n data \n
+        res = self.uart.readline() #NOTE: Dont know if newline is included in return value
+        if (res != "OK"): #Check for succesful acknowledgement by arduino
+            log_exception(OSError("Error while configuring Serial Logging Device"), datetime=rtc.datetime())
+
+    def log(self):
+        self.uart.write("_req\n"+self.alias)
+        res = self.uart.readline()
 
 myLoggingDevices = []
 
 async def main():
     if config is not None:
         for device in config["loggingDevices"]:
-            print(device)
+            #print(device)
             myLoggingDevices.append(LoggingDevice.create_instance(device["id"], **(device["constructor_args"] | {'alias': device["alias"]})))
 
     while True:
@@ -194,4 +228,14 @@ async def main():
         await asyncio.sleep(50)
 
 # Run the event loop
-asyncio.run(main())
+try:
+    asyncio.run(main())
+except Exception as e: #Fatal exception
+    log_exception(e, rtc.datetime())
+    error_led = Pin("LED", Pin.OUT)
+    for i in range(0, 5):
+        error_led.on()
+        time.sleep_ms(250)
+        error_led.off()
+        time.sleep_ms(250)
+    machine.reset()
