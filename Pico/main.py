@@ -212,7 +212,7 @@ class WindDirection_LoggingDeviceSerial(LoggingDevice):
             log_exception(OSError("Error while configuring Serial Logging Device"), datetime=rtc.datetime())
 
     def log(self):
-        self.uart.write("_req\n"+self.alias)
+        self.uart.write("_req\n"+self.alias+"\n")
         res = self.uart.readline()
 
 myLoggingDevices = []
