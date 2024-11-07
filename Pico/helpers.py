@@ -99,6 +99,9 @@ def get_i2c_instance(bus=0, scl_pin=None, sda_pin=None, freq=400000):
 
 _UART_instances = {}
 
+UART_BAUDRATE = 9600
+UART_TIMEOUT = 2000
+
 def get_UART_instance(self, id, *args, **kwargs): #Kwargs may include Bits, Parity, Stop
     if (id in _UART_instances):
         return _UART_instances[id]
@@ -106,8 +109,8 @@ def get_UART_instance(self, id, *args, **kwargs): #Kwargs may include Bits, Pari
         0: {'tx': 0, 'rx': 1}, 
         1: {'tx': 4, 'rx': 5}
     }
-    _UART_instances[id] = UART(baudrate=9600)
-    _UART_instances[id].init(id, **( {"bits":8, "parity":None, "stop":1, "timeout": 2000} | default_pins[id] | kwargs))
+    _UART_instances[id] = UART(baudrate=UART_BAUDRATE)
+    _UART_instances[id].init(id, **( {"bits":8, "parity":None, "stop":1, "timeout": UART_TIMEOUT} | default_pins[id] | kwargs))
     return _UART_instances[id]
         
 

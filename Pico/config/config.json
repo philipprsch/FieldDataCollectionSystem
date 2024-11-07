@@ -59,6 +59,18 @@
                     "pin315deg": 11
                 }
             }
+        }, 
+        {
+            "id": 21,
+            "alias": "21-0",
+            "info": "Wind speed (Serial)",
+            "constructor_args": {
+                "interval": 5,
+                "tx": 0,
+                "rx": 1,
+                "bus": 0,
+                "pin": 2
+            }
         }
     ],
     "connectivity": {},

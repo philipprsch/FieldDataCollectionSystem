@@ -5,14 +5,13 @@
 class WindSpeedSensor : public LoggingDevice {
   private:
   char pin;
-  bool interruptFlag;
 
-  int rotationsCounter;
+  volatile int rotationsCounter;
   long lastCounterReset;
   public:
   WindSpeedSensor(String id, String alias, char pin) : LoggingDevice(id, alias) {
     this->pin = pin;
-    this->interruptFlag = false;
+    //this->interruptFlag = false;
 
     this->rotationsCounter = 0;
     this->lastCounterReset = millis();
@@ -23,14 +22,11 @@ class WindSpeedSensor : public LoggingDevice {
     
   }
   void handleInterrupt() override {
-    this->interruptFlag = true;
+    //this->interruptFlag = true;
+    this->rotationsCounter++;
   }
-  void handle() {
-    if (this->interruptFlag) {
-      Serial.println("Interrupt of "+String(this->alias)+" was called!");
-      this->rotationsCounter++;
-      this->interruptFlag = false;
-    }
+  void handle() override {
+    return;
   }
   void log() override {
     long now = millis();

@@ -31,7 +31,7 @@ void setup()
   Serial.begin(9600);        // Start serial communication at 9600 bps
   inputString.reserve(200);  // Reserve 200 bytes for the input string
 
-  InterruptHandler* interupthandler = new InterruptHandler();
+  //InterruptHandler* interupthandler = new InterruptHandler();
   InterruptHandler::init();
 }
 
@@ -75,7 +75,7 @@ void loop() {
             Serial.println("params[0] is 21");
             devices[deviceCount] = new WindSpeedSensor(params[0], params[1], params[2].toInt());
           } else if (params[0] == "22") {  
-            
+
           } else {
             Serial.println("Logging device ID not supported.");
             // Logging Device ID not supported by this external microcontroller
