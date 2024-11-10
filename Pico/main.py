@@ -20,10 +20,15 @@ from devices.LoggingDevice import LoggingDevice
 logging_devices = read_json("lookup/LoggingDevices.json")
 print(logging_devices)
 
-config = read_json("config/config.json")
-if config is None: raise OSError("No configuration file found")
-
 rtc = RTC() #Use onbaord Pico RTC, can be supplemented by external RTC Module
+
+
+config = read_json("config/config.json")
+if config is None: 
+    e = OSError("No configuration file found")
+    log_exception(e)
+    raise e
+
 
 if (config != None and config["others"]["external_rtc"]):
     #Initialize and update onboard RTC module
@@ -54,8 +59,11 @@ if (not does_folder_exist("/sd")):
 
 task_manager = TaskManager()
 
-
+arduino = get_UART_instance(0) #Get Bus 0 Serial Instance to read arduino prints for debugging
 myLoggingDevices = []
+
+#For Arduino Debugging
+arduinoInput = ""
 
 async def main():
     if config is not None:
@@ -64,8 +72,17 @@ async def main():
             myLoggingDevices.append(LoggingDevice.create_instance(device["id"], **(device["constructor_args"] | {'alias': device["alias"]})))
 
     while True:
-        await task_manager.list_tasks()
-        await asyncio.sleep(50)
+        #await task_manager.list_tasks()
+        #Listen to Arduino
+        if arduino.any():
+            res = arduino.read()
+            if res.decode() == "\n":
+                print("Ard: "+arduinoInput)
+                arduinoInput = ""
+            else:
+                arduinoInput += res.decode()
+
+        await asyncio.sleep(1)
 
 # Run the event loop
 try:

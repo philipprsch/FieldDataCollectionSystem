@@ -102,7 +102,7 @@ _UART_instances = {}
 UART_BAUDRATE = 9600
 UART_TIMEOUT = 2000
 
-def get_UART_instance(self, id, *args, **kwargs): #Kwargs may include Bits, Parity, Stop
+def get_UART_instance(id, *args, **kwargs): #Kwargs may include Bits, Parity, Stop
     if (id in _UART_instances):
         return _UART_instances[id]
     default_pins = {
@@ -120,7 +120,14 @@ import traceback
 # Define a function to log errors to a file
 MAX_LOG_SIZE = 1024 * 1024  # 1 MB
 
-def log_exception(e, datetime, msg=None):
+from main import rtc
+
+def log_exception(e, msg=None):
+    try:
+        datetime = get_readable_time(rtc.datetime())
+    except Exception as e2:
+        datetime = "TIME UNKNOWN"
+
     if (msg is not None): print(msg)
     print(f"Exception: {str(e)} was logged to file")
 
