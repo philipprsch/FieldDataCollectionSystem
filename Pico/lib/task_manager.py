@@ -3,18 +3,16 @@
 import uasyncio as asyncio
 
 class TaskManager:
-    def __init__(self):
-        # Dictionary to store tasks with their identifiers
-        self.tasks = {}
-
-    async def _run_at_interval(self, identifier, interval, method):
+    tasks = {}
+    @staticmethod
+    async def _run_at_interval(identifier, interval, method):
         """Runs the given method at the specified interval."""
         while True:
             #await method(identifier)
             method()
             await asyncio.sleep(interval)
-
-    def add_task(self, identifier, method, interval):
+    @staticmethod
+    def add_task(identifier, method, interval):
         """
         Add a method (task) to run at a regular interval.
         
@@ -23,35 +21,36 @@ class TaskManager:
         :param interval: Time interval in seconds between executions
         """
         # Check if task with the same identifier already exists
-        if identifier in self.tasks:
-            print(f"Task '{identifier}' already exists. Remove it first if you want to add a new one.")
-            return
+        if identifier in TaskManager.tasks:
+            raise ValueError(f"Task '{identifier}' already exists. Remove it first if you want to add a new one.")
         
         # Create and store the task
-        task = asyncio.create_task(self._run_at_interval(identifier, interval, method))
-        self.tasks[identifier] = task
+        task = asyncio.create_task(TaskManager._run_at_interval(identifier, interval, method))
+        TaskManager.tasks[identifier] = task
         print(f"Task '{identifier}' added with interval {interval} seconds")
-
-    async def remove_task(self, identifier):
+    @staticmethod
+    async def remove_task(identifier):
         """
         Remove a task by its identifier.
         
         :param identifier: Unique name/ID for the task
         """
         # Check if the task exists
-        if identifier in self.tasks:
-            task = self.tasks[identifier]
+        if identifier in TaskManager.tasks:
+            task = TaskManager.tasks[identifier]
             task.cancel()  # Cancel the task
-            del self.tasks[identifier]  # Remove from the dictionary
+            del TaskManager.tasks[identifier]  # Remove from the dictionary
             print(f"Task '{identifier}' removed")
         else:
             print(f"No task found with identifier '{identifier}'")
-
-    async def list_tasks(self):
+    @staticmethod
+    async def list_tasks():
+        out = ""
         """Prints all the currently active tasks."""
-        if not self.tasks:
-            print("No active tasks.")
+        if not TaskManager.tasks:
+            out += "No active tasks.\n"
         else:
-            print("Active tasks:")
-            for identifier in self.tasks:
-                print(f" - {identifier}")
+            out += "Active tasks:\n"
+            for identifier in TaskManager.tasks:
+                out += f" - {identifier}\n"
+        return out

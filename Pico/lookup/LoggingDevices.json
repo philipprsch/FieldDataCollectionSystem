@@ -44,24 +44,17 @@
         "description": "Measures wind direction",
         "module_dependencies": [""],
         "constructor_arg_defaults": {
-            "tx": null,
-            "rx": null,
+            "interval": 10,
             "bus": 0,
-            "constructor_args": {
-                "interval": 10,
-                "tx": 0,
-                "rx": 1,
-                "bus": 0,
-                "pins": {
-                    "pin0deg": null,
-                    "pin45deg": null,
-                    "pin90deg": null,
-                    "pin135deg": null,
-                    "pin180deg": null,
-                    "pin225deg": null,
-                    "pin270deg": null,
-                    "pin315deg": null
-                }
+            "pins": {
+                "pin0deg": null,
+                "pin45deg": null,
+                "pin90deg": null,
+                "pin135deg": null,
+                "pin180deg": null,
+                "pin225deg": null,
+                "pin270deg": null,
+                "pin315deg": null
             }
         }
     },
@@ -71,16 +64,10 @@
         "description": "Measures wind direction",
         "module_dependencies": [""],
         "constructor_arg_defaults": {
-            "tx": null,
-            "rx": null,
+            "interval": 10,
             "bus": 0,
-            "constructor_args": {
-                "interval": 10,
-                "tx": 0,
-                "rx": 1,
-                "bus": 0,
-                "pin": 2
-            }
+            "pin": 2       
+            
         }
     }
 }

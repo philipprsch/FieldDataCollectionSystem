@@ -45,9 +45,7 @@
             "info": "Wind direction (Serial)",
             "constructor_args": {
                 "interval": 10,
-                "tx": 0,
-                "rx": 1,
-                "bus": 0,
+                "controller": "01",
                 "pins": {
                     "pin0deg": 4,
                     "pin45deg": 5,
@@ -61,21 +59,35 @@
             }
         }, 
         {
-            "id": 21,
+            "id": "21",
             "alias": "21-0",
             "info": "Wind speed (Serial)",
             "constructor_args": {
                 "interval": 5,
-                "tx": 0,
-                "rx": 1,
-                "bus": 0,
+                "controller": "01",
                 "pin": 2
             }
         }
     ],
+    "controllers": {
+        "01": {
+            "type": "Arduino UNO",
+            "connection": "Serial",
+            "uart": {
+                "bus": 1,
+                "tx_pin": 8,
+                "rx_pin": 9,       
+                "timeout": 500
+            },
+            "retries": 2
+        }
+    },
     "connectivity": {},
     "storage": {
-        "log_file_path": "sd/log.csv"
+        "log_file_path": "sd/log.csv",
+        "error_log_file_path": "/error_log.txt",
+        "error_log_old_file_path": "/erro_log_old.txt",
+        "error_log_file_size": 1048576
     },
     "others": {
         "external_rtc": true
