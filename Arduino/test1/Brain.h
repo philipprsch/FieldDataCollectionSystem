@@ -24,7 +24,7 @@ class Brain {
         char paramCount;
     };
     const LoggingDeviceFactoryMap factoryMap[SUPPORTED_DEVICES] = { //Changed order for testing
-      {"21", &WindSpeedSensor::factory, 3},
+      {"21", &WindSpeedSensor::factory, 3}, //10 for testing - nothing
       {"20", &WindDirection::factory, 10}
     };
 
@@ -66,7 +66,7 @@ class Brain {
     }
     void com_setup(const String params[], char parmCount) {
       Debugger::log("Attempting to setup device: ID = "+ params[0] + ", Alias = "+ params[1]);
-      for (char i = 0; i < SUPPORTED_DEVICES; i++) {
+      for (int i = 0; i < SUPPORTED_DEVICES; i++) {
         if (factoryMap[i].deviceID == params[0]) {
           if (getDeviceByAlias(params[1])) {
             this->sendError(ERR_ALIAS_ALREADY_EXISTS);
@@ -81,7 +81,7 @@ class Brain {
             
             LoggingDevice* device = factoryMap[i].factory(params);
             if (!device) {
-                delete device;
+                //delete device;
                 this->sendError(ERR_DEVICE_CONSTRUCTION_FAILED);
                 return;
             }
