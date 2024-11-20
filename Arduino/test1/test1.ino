@@ -1,50 +1,43 @@
+#include "helpers.h"
+
+#include "defines.h"
+
+#include "Debugger.h"
+#include "Brain.h"
+
+#include <avr/wdt.h>
+
 
 String inputString = "";      // A string to hold incoming data
 bool stringComplete = false;  // Whether the string is complete 
 
+#define ONBOARD_LED 13
+
+
 void setup() {
   Serial.begin(9600);
-  inputString.reserve(200);
+  //wdt_enable(WDTO_2S);
+  wdt_disable();
+  inputString.reserve(50);
+  Debugger::init();
+  pinMode(ONBOARD_LED, OUTPUT);
+  for (char i = 0; i < 3; i++) {
+    digitalWrite(ONBOARD_LED, HIGH);
+    delay(100);
+    digitalWrite(ONBOARD_LED, LOW);
+    delay(100);
+  }
+  DEBUG_PRINTLN("A reset occured!");
+  
+  DEBUG_PRINT("Memory: ");
+  DEBUG_PRINTLN(freeMemory());
 }
-void splitString(String* input, char delimiter, String* part1, String* part2) {
-    String lol = *input;
-    int delimiterIndex = lol.indexOf(delimiter);
-    if (delimiterIndex != -1) {
-        *part1 = lol.substring(0, delimiterIndex);
-        *part2 = lol.substring(delimiterIndex + 1);
-    } else {
-        part1 = input;
-        *part2 = ""; // No delimiter found, so part2 is empty
-    }
-}
-struct BrainMethodMap {
-    const char* name;
-    void (Brain::*func)();
-};
-class Brain {
-  private:
 
-  public:
-  Brain() {
-
-  }
-  void sendError(String errorID) {
-    Serial.println("!ER"+errorID);
-  }
-  bool handleInput(String input) {
-    if (!input[0] == '/') {
-      this->sendError("01");
-      return false; //or hanlde input ohterwise
-    }
-    String command, parameters;
-    splitString(&input, ' ', &command, &parameters);
-
-  }
-};
+Brain brain = Brain();
 
 void loop() {
   if (stringComplete) {
-    processInputString(inputString);
+    brain.handleInput(inputString);
     inputString = "";
     stringComplete = false;
   }
@@ -62,4 +55,5 @@ void serialEvent() {
       inputString += inChar;  // Append character to the input string
     }
   }
+  //delay(8); //Testing
 }
