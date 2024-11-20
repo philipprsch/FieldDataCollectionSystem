@@ -19,7 +19,7 @@ class WindSpeedSensor : public LoggingDevice { //ID: 21
     this->rotationsCounter = 0;
     this->lastCounterReset = millis();
   }
-  static LoggingDevice* factory(const String params[]) {
+  static LoggingDevice* factory(char** params) {
     // DEBUG_PRINT("Memory: ");
     // DEBUG_PRINTLN(freeMemory());
     // DEBUG_PRINTLN("Factory of WindSpeed was called with params: ");

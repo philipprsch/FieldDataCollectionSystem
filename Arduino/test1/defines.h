@@ -5,6 +5,10 @@
 #define MAX_DEVICES 10
 #define MAX_COMMANDS 6
 
+//Max Length +1 of command and parameter
+#define PARAMETER_BUFFER_SIZE 20
+#define COMMAND_BUFFER_SIZE 6
+
 //Debugging Option toggles Serial Debug messages
 #define DEBUG_MODE true
 
@@ -44,3 +48,6 @@
 //Device Initialization failed
 
 #define ERR_ALIAS_ALREADY_EXISTS 9
+
+#define ERR_INPUT_BUFFER_OVERFLOW 10
+//The input buffer has exceeded its size
