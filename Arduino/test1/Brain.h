@@ -48,7 +48,7 @@ class Brain {
       //{"/help", &Brain::com_help}
     };
 
-    void com_req(const String params[], char parmCount) {
+    void com_req(char** params, char parmCount) {
       if (!params[0]) { //Parameter 0 = Alias is not defined
         this->sendError(ERR_PARAMETER_MISSING);
         return;
@@ -60,7 +60,7 @@ class Brain {
       }
       device->log();
      }
-    void com_list(const String params[], char parmCount) {
+    void com_list(char** params, char parmCount) {
       Serial.println("Device Count: "+ String(deviceCounter));
       for (byte i = 0; i < deviceCounter; i++) {
         Serial.print("Alias: ");
@@ -107,19 +107,19 @@ class Brain {
       //Device with params[0] as ID not suppoerted
       
     }
-    void com_report(const String params[], char parmCount) {
+    void com_report(char** params, char parmCount) {
         Serial.println("---Report millis="+String(millis())+"---");
         Debugger::print();
     }
-    void com_reset(const String params[], char parmCount) {
+    void com_reset(char** params, char parmCount) {
         DEBUG_PRINTLN("Resetting");
         wdt_enable(WDTO_15MS); // resets the MCU after 15 milliseconds
         while (true);
     }
-    void com_help(const String params[], char parmCount) {
+    void com_help(char** params, char parmCount) {
 
     }
-    LoggingDevice* getDeviceByAlias(String alias) {
+    LoggingDevice* getDeviceByAlias(char* alias) {
       for (byte i = 0; i < deviceCounter; i++) {
         if (devices[i]->getAlias() == alias) {
           return devices[i];
