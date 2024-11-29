@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LoggingDevice.h"
-#include <Array.h>
 
 
 class WindDirection : public LoggingDevice { //ID: 20
@@ -10,13 +9,12 @@ class WindDirection : public LoggingDevice { //ID: 20
 
  public:
   WindDirection(String id, String alias, char pins[8]) : LoggingDevice(id, alias) {
-     Debugger::log("--Printing Pins--");
+     DEBUG_PRINTLN("--Printing Pins--");
      for (char i = 0; i < 8; i++) {
       this->pins[i] = pins[i];
-       Debugger::log(String((int)pins[i])+",");
      }
      
-     Debugger::log("WindDirection creation complete.");
+     DEBUG_PRINTLN("WindDirection creation complete.");
   }
   //Static public factory meethod, for creation beased on parameters
   static LoggingDevice* factory(const String params[]) {
@@ -24,41 +22,35 @@ class WindDirection : public LoggingDevice { //ID: 20
     for (char i = 0; i < 8; i++) {
       pins[i] = (params[i + 2].toInt());
     }
-    Debugger::log("Creating WindDiretion Object");
+    DEBUG_PRINTLN("Creating WindDiretion Object");
     return new WindDirection(params[0], params[1], pins);
   }
 
-
-  void handleInterrupt() override {
-    return;
-  } //Supress virtual declaration error
-
   bool init() {
-    Debugger::log("Initializing WindDirection...");
+    DEBUG_PRINTLN("Initializing WindDirection...");
     for (int i = 0; i < sizeof(this->pins)/sizeof(char); i++) {
       if ((int)this->pins[i] == 0) {
-        Debugger::log("Pin "+ String(i) + " is zero.");
+        Debugger::log("Wind Direction Pin "+ String(i) + " is zero.");
         return false;
       }
       pinMode((int)this->pins[i], INPUT_PULLUP);
     }
-    Debugger::log("WindDirection initialization complete.");
+    DEBUG_PRINTLN("WindDirection initialization complete.");
     return true;
   }
-  Array<bool, 8> measure() { //One possible implementation (alt. return wind direction as 2-char string)
+  void measure(bool mesurements[8]) { //One possible implementation (alt. return wind direction as 2-char string)
 
-    Array<bool, 8> result;
+    bool result[8];
     for (char i = 0; i < 8; i++) {
       result[i] = (digitalRead(this->pins[i]) == HIGH); 
     }
-    
-    return result;
   }
   void log() override { 
-    Array<bool, 8> windDirectionBool = measure();
+    bool windMeasurements[8];
+    measure(windMeasurements);
     String result = "";
         for (int i = 0; i < 8; i++) {
-        result += windDirectionBool[i] ? "1" : "0";
+        result += windMeasurements[i] ? "1" : "0";
         if (i != 7) {
             result += ",";
         }

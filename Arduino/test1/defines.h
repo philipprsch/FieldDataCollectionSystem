@@ -1,7 +1,7 @@
 #pragma once
 
 #define MAX_PARAMETERS 10
-#define SUPPORTED_DEVICES 2 //Amount of classes / distinct devices
+#define SUPPORTED_DEVICES 4 //Amount of classes / distinct devices
 #define MAX_DEVICES 10
 #define MAX_COMMANDS 6
 
@@ -15,9 +15,19 @@
 #ifdef DEBUG_MODE
   #define DEBUG_PRINT(x) Serial.print(x)
   #define DEBUG_PRINTLN(x) Serial.println(x)
+  #define DEBUG_PRINT_ARRAY(arr, len)        \
+  for (int i = 0; i < len; i++) {   \
+    Serial.print(arr[i]);           \
+    if (i < len - 1) {              \
+      Serial.print(", ");           \
+    }                               \
+  }                                 \
+  Serial.println();
+
 #else
   #define DEBUG_PRINT(x)   // Do nothing
   #define DEBUG_PRINTLN(x) // Do nothing
+  #define DEBUG_PRINT_ARRAY(array, len) // Do nothing
 #endif
 
 
