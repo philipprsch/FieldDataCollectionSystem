@@ -7,42 +7,32 @@
 
 class WindSpeedSensor : public LoggingDevice { //ID: 21
   private:
-  int pin;
+  char pin;
 
   volatile int rotationsCounter;
-  long lastCounterReset;
+  unsigned long lastCounterReset;
   public:
-  WindSpeedSensor(String id, String alias, int pin) : LoggingDevice(id, alias) {
+  WindSpeedSensor(String id, String alias, char pin) : LoggingDevice(id, alias) { //Changed to cahr
+    DEBUG_PRINT("Constructor: Memory: ");
+    DEBUG_PRINTLN(freeMemory());
     this->pin = pin;
-    //this->interruptFlag = false;
 
     this->rotationsCounter = 0;
-    this->lastCounterReset = millis();
+    this->lastCounterReset = 0; //Assigning to millis causes problems
   }
   static LoggingDevice* factory(const String params[]) {
-    // DEBUG_PRINT("Memory: ");
-    // DEBUG_PRINTLN(freeMemory());
-    // DEBUG_PRINTLN("Factory of WindSpeed was called with params: ");
-    // for (int i = 1; i < 3; i++) {
-    //   DEBUG_PRINT("Param "+String(i)+": ");
-    //   DEBUG_PRINT("Memory: ");
-    //   DEBUG_PRINTLN(freeMemory());
-    //   //if (params[i]) DEBUG_PRINT("exiists: ");
-    //   //DEBUG_PRINTLN(params[i]);
-    // }
-    return new WindSpeedSensor("21", "21-0", 2);
-    //return new WindSpeedSensor(params[0], params[1], params[2].toInt());
+    DEBUG_PRINT("Memory: ");
+    DEBUG_PRINTLN(freeMemory());
+    return new WindSpeedSensor(params[0], params[1], params[2].toInt());
   }
   bool init() {
     if (this->pin == 0) return false; //Removed !this->pin for testing
     pinMode(this->pin, INPUT_PULLUP);
-    DEBUG_PRINTLN("About to add interrupt for WIndSpeed");
     InterruptHandler::addInterrupt(this, &LoggingDevice::handleInterrupt, this->pin);
     DEBUG_PRINTLN("Added interrupt for WIndSpeed");
     return true;
   }
   void handleInterrupt() override {
-    //this->interruptFlag = true;
     this->rotationsCounter++;
   }
   void handle() override {
@@ -53,7 +43,7 @@ class WindSpeedSensor : public LoggingDevice { //ID: 21
     long delta = now - this->lastCounterReset;
     float res = (this->rotationsCounter*1000*60 / delta); //RPM
     char buffer[7];
-    Debugger::log("Wind Sensor RPM: "+ String(res));
+    DEBUG_PRINTLN("Wind Sensor RPM: "+ String(res));
 
     this->lastCounterReset = now;
     this->rotationsCounter = 0;
