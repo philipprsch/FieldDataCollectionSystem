@@ -46,6 +46,7 @@ class Brain {
     };
 
     void com_req(const String params[], char parmCount) {
+      Debugger::log("Request: ID = "+ params[0] + ", Alias = "+ params[1]);
       if (params[0] == "") { //Parameter 0 missing = Alias is not defined
         this->sendError(ERR_PARAMETER_MISSING);
         return;
@@ -68,7 +69,7 @@ class Brain {
       //Alternitively: Implement infoText() Method for each Logging Device Child Class
     }
     void com_setup(const String params[], char parmCount) {
-      Debugger::log("Attempting to setup device: ID = "+ params[0] + ", Alias = "+ params[1]);
+      Debugger::log("Setting up device: ID = "+ params[0] + ", Alias = "+ params[1]);
       for (int i = 0; i < SUPPORTED_DEVICES; i++) {
         if (factoryMap[i].deviceID == params[0]) {
           if (getDeviceByAlias(params[1])) {

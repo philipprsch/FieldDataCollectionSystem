@@ -30,6 +30,7 @@ class InterruptHandler {
     instance[interruptCounter] = myinstance;
     callback[interruptCounter] = mycallback;
     attachInterrupt(digitalPinToInterrupt(pin), handlers[interruptCounter++], mode);
+    Debugger::log("Added interrupt");
   }
   //If more Interrupt Pins are available on other board, adhust MAX_INTERRUPTS and manually add new handlers
   static void interruptHandler0() {

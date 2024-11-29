@@ -17,8 +17,6 @@ bool stringComplete = false;  // Whether the string is complete
 Brain brain = Brain();
 void setup() {
   Serial.begin(9600);
-  //wdt_enable(WDTO_2S);
-  //wdt_disable();
   //inputString.reserve(50);
   Debugger::init();
   pinMode(ONBOARD_LED, OUTPUT);
@@ -32,50 +30,30 @@ void setup() {
   
   DEBUG_PRINT("Memory: ");
   DEBUG_PRINTLN(freeMemory());
-  
-
-  //brain.handleInput("/setup 21,21-0,2");
 }
 
 
 
 void loop() {
 
-  // while (Serial.available() == 0) {}     //wait for data available
-  // String inputString = Serial.readString();  //read until timeout
-  // //inputString.trim();
-  // stringComplete = true;
-
   if (stringComplete) {
-    //inputString.trim();
+    wdt_enable(WDTO_2S); //Reset board if it gets stuck while handeling input
     brain.handleInput(inputString);
+    wdt_disable();
     inputString = "";
 
     stringComplete = false;
   }
-  
-  //   while (Serial.available() > 0) {
-  //   char inChar = (char)Serial.read();  // Read the next byte
-
-  //   // If the incoming character is a newline, set stringComplete flag
-  //   if (inChar == '\n') {
-  //     stringComplete = true;
-  //   } else {
-  //     inputString.concat(inChar);  // Append character to the input string
-  //   }
-  // }
 }
 
 void serialEvent() {
   while (Serial.available()) {
     char inChar = (char)Serial.read();  // Read the next byte
-
-    // If the incoming character is a newline, set stringComplete flag
     if (inChar == '\n') {
       stringComplete = true;
     } else {
       inputString.concat(inChar);  // Append character to the input string
     }
   }
-  //delay(8); //Testing
+  //delay(8); //Optional delay
 }

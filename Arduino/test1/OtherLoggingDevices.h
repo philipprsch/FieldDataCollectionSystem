@@ -10,7 +10,7 @@ class GenericDigitalInput : public LoggingDevice {
     DEBUG_PRINTLN("Digital input creation complete.");
   }
   static LoggingDevice* factory(const String params[]) {
-    Debugger::log("Creating Generic DIgiatal Input Object");
+    DEBUG_PRINTLN("Creating Generic DIgiatal Input Object");
     return new GenericDigitalInput(params[0], params[1], params[2].toInt());
   }
   bool init() {
@@ -39,7 +39,7 @@ class GenericAnalogInput : public LoggingDevice {
     DEBUG_PRINTLN("Analog input creation complete.");
   }
   static LoggingDevice* factory(const String params[]) {
-    Debugger::log("Creating Generic Analog Input Object");
+    DEBUG_PRINTLN("Creating Generic Analog Input Object");
     return new GenericAnalogInput(params[0], params[1], params[2].toInt());
   }
   bool init() {
