@@ -5,7 +5,7 @@
 
 #include "helpers.h"
 
-class WindSpeedSensor : public LoggingDevice { //ID: 21
+class WindSpeedSensor : public LoggingDevice, virtual public InterruptUser { //ID: 21
   private:
   char pin;
 
@@ -28,7 +28,9 @@ class WindSpeedSensor : public LoggingDevice { //ID: 21
   bool init() {
     if (this->pin == 0) return false; //Removed !this->pin for testing
     pinMode(this->pin, INPUT_PULLUP);
-    InterruptHandler::addInterrupt(this, &LoggingDevice::handleInterrupt, this->pin);
+    noInterrupts();
+    InterruptHandler::addInterrupt(this, &InterruptUser::handleInterrupt, this->pin);
+    interrupts();
     DEBUG_PRINTLN("Added interrupt for WIndSpeed");
     return true;
   }

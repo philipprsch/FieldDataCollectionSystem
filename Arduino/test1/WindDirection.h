@@ -26,11 +26,6 @@ class WindDirection : public LoggingDevice { //ID: 20
     return new WindDirection(params[0], params[1], pins);
   }
 
-
-  void handleInterrupt() override {
-    return;
-  } //Supress virtual declaration error
-
   bool init() {
     DEBUG_PRINTLN("Initializing WindDirection...");
     for (int i = 0; i < sizeof(this->pins)/sizeof(char); i++) {

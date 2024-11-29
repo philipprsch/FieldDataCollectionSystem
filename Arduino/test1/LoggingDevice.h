@@ -26,10 +26,7 @@ class LoggingDevice {
     }
   virtual bool init() = 0;
   virtual void log() = 0;  // Pure virtual function
-  virtual void handle() = 0;
-  virtual void handleInterrupt() {
-    
-  }
+  virtual void handle() = 0; //virtual void handleInterrupt() moved to base class InterruptUser
   
   static void call(LoggingDevice* instance, void (LoggingDevice::*callback)()) {
   (instance->*callback)();

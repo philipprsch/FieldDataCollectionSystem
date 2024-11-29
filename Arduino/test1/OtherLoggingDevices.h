@@ -24,9 +24,6 @@ class GenericDigitalInput : public LoggingDevice {
   void handle() override {
     return;
   }
-  void handleInterrupt() override {
-    return;
-  }
 };
 
 
@@ -51,9 +48,6 @@ class GenericAnalogInput : public LoggingDevice {
     logParent((String)value);
   }
   void handle() override {
-    return;
-  }
-  void handleInterrupt() override {
     return;
   }
 };
