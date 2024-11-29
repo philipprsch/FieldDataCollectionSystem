@@ -7,6 +7,7 @@
 //Changed include order for testing
 #include "WindSpeed.h"
 #include "WindDirection.h"
+#include "OtherLoggingDevices.h"
 
 
 #include "Debugger.h"
@@ -19,13 +20,14 @@ class Brain {
 
     struct LoggingDeviceFactoryMap {
         String deviceID;
-        //LoggingDevice* (*factory)(const String params[]);
         LoggingDevice* (*factory)(const String params[]);
         char paramCount;
     };
-    const LoggingDeviceFactoryMap factoryMap[SUPPORTED_DEVICES] = { //Changed order for testing
-      {"21", &WindSpeedSensor::factory, 3},
-      {"20", &WindDirection::factory, 10}
+    const LoggingDeviceFactoryMap factoryMap[SUPPORTED_DEVICES] = {
+      {"21", &WindSpeedSensor::factory, 3}, 
+      {"20", &WindDirection::factory, 10},
+      {"22", &GenericDigitalInput::factory, 3},
+      {"23", &GenericAnalogInput::factory, 3}
     };
 
     struct BrainMethodMap {
@@ -43,10 +45,11 @@ class Brain {
     };
 
     void com_req(const String params[], char parmCount) {
-      if (!params[0]) { //Parameter 0 = Alias is not defined
+      if (params[0] == NULL) { //Parameter 0 missing = Alias is not defined
         this->sendError(ERR_PARAMETER_MISSING);
         return;
       } //TODO: Check if this catches error case
+      Debugger::log("Request: Alias = "+ params[0]);
       LoggingDevice* device = getDeviceByAlias(params[0]);
       if (!device) {
         this->sendError(ERR_INVALID_ALIAS);
@@ -56,7 +59,7 @@ class Brain {
      }
     void com_list(const String params[], char parmCount) {
       Serial.println("Device Count: "+ String(deviceCounter));
-      for (byte i = 0; i < deviceCounter; i++) {
+      for (uint8_t i = 0; i < deviceCounter; i++) {
         Serial.print("Alias: ");
         Serial.print(devices[i]->getAlias());
         Serial.print(", ID: ");
@@ -65,8 +68,8 @@ class Brain {
       //Alternitively: Implement infoText() Method for each Logging Device Child Class
     }
     void com_setup(const String params[], char parmCount) {
-      Debugger::log("Attempting to setup device: ID = "+ params[0] + ", Alias = "+ params[1]);
-      for (char i = 0; i < SUPPORTED_DEVICES; i++) {
+      Debugger::log("Setting up device: ID = "+ params[0] + ", Alias = "+ params[1]);
+      for (int i = 0; i < SUPPORTED_DEVICES; i++) {
         if (factoryMap[i].deviceID == params[0]) {
           if (getDeviceByAlias(params[1])) {
             this->sendError(ERR_ALIAS_ALREADY_EXISTS);
@@ -74,14 +77,11 @@ class Brain {
           }  
           if (parmCount >= factoryMap[i].paramCount) {
             DEBUG_PRINTLN("About to call facotry with params: ");
-            for (int c = 0; c < parmCount; c++)
-            {
-              DEBUG_PRINTLN("Param "+String(c)+": " + params[c]);
-            }
+            DEBUG_PRINT_ARRAY(params, parmCount);
             
             LoggingDevice* device = factoryMap[i].factory(params);
-            if (!device) {
-                delete device;
+            if (!device) { //Should never occure
+                //delete device;
                 this->sendError(ERR_DEVICE_CONSTRUCTION_FAILED);
                 return;
             }
@@ -97,9 +97,7 @@ class Brain {
           return;
         }
       }
-      this->sendError(ERR_UNSUPPORTED_DEVICE_ID);
-      //Device with params[0] as ID not suppoerted
-      
+      this->sendError(ERR_UNSUPPORTED_DEVICE_ID); //Device with params[0] as ID not suppoerted
     }
     void com_report(const String params[], char parmCount) {
         Serial.println("---Report millis="+String(millis())+"---");
@@ -111,10 +109,10 @@ class Brain {
         while (true);
     }
     void com_help(const String params[], char parmCount) {
-
+        //Not important
     }
     LoggingDevice* getDeviceByAlias(String alias) {
-      for (byte i = 0; i < deviceCounter; i++) {
+      for (uint8_t i = 0; i < deviceCounter; i++) {
         if (devices[i]->getAlias() == alias) {
           return devices[i];
         }
@@ -122,19 +120,11 @@ class Brain {
       return nullptr;  // No device found with the given alias
     }
     LoggingDevice* devices[MAX_DEVICES];
-    int deviceCounter = 0;
+    uint8_t deviceCounter = 0;
   public:
 
   String myParams[MAX_PARAMETERS]; //Put here and used in constructor instead of handleInput for testing
-  Brain() {
-    for (char i = 0; i < MAX_PARAMETERS; i++) {
-      if (!myParams[i].reserve(10)) {
-        DEBUG_PRINTLN("Could not reserve space for parameter");
-      }   
-      myParams[i] = "abababababab";
-    }
-    
-  }
+  Brain() {}
 
   void sendError(int error) {
     Serial.println("!ER"+String(error)); //Commented for testing
@@ -148,7 +138,7 @@ class Brain {
   void callCommand(String name, const String params[], int paramCount) {
       for (int i = 0; i < MAX_COMMANDS; i++) {
           if (commandMap[i].name == name) {
-              // Maybe Check if the number of parameters is correct for given command
+              // Maybe add check for number of parameters for given command
               (this->*commandMap[i].func)(params, (char)paramCount);  // Call the member function, added char
               return;
           }

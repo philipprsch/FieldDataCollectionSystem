@@ -1,6 +1,20 @@
 #pragma once
 #include "defines.h"
 
+
+//Empty debugger class for testing
+// class Debugger {
+//   public:
+//   Debugger() {}
+//   static void init() {};
+//   static void log(const String str) {}
+//   static void clear() {}
+//   static void print() {}
+
+
+// };
+
+
 class Debugger {
  private:
   static String logs;

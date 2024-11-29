@@ -8,17 +8,16 @@
 #include <avr/wdt.h>
 
 
+
 String inputString = "";      // A string to hold incoming data
 bool stringComplete = false;  // Whether the string is complete 
 
 #define ONBOARD_LED 13
 
-
+Brain brain = Brain();
 void setup() {
   Serial.begin(9600);
-  //wdt_enable(WDTO_2S);
-  wdt_disable();
-  inputString.reserve(50);
+  //inputString.reserve(50);
   Debugger::init();
   pinMode(ONBOARD_LED, OUTPUT);
   for (char i = 0; i < 3; i++) {
@@ -33,27 +32,28 @@ void setup() {
   DEBUG_PRINTLN(freeMemory());
 }
 
-Brain brain = Brain();
+
 
 void loop() {
+
   if (stringComplete) {
+    wdt_enable(WDTO_2S); //Reset board if it gets stuck while handeling input
     brain.handleInput(inputString);
+    wdt_disable();
     inputString = "";
+
     stringComplete = false;
   }
-
 }
 
 void serialEvent() {
   while (Serial.available()) {
     char inChar = (char)Serial.read();  // Read the next byte
-
-    // If the incoming character is a newline, set stringComplete flag
     if (inChar == '\n') {
       stringComplete = true;
     } else {
-      inputString += inChar;  // Append character to the input string
+      inputString.concat(inChar);  // Append character to the input string
     }
   }
-  //delay(8); //Testing
+  //delay(8); //Optional delay
 }
