@@ -20,12 +20,11 @@ class Brain {
 
     struct LoggingDeviceFactoryMap {
         String deviceID;
-        //LoggingDevice* (*factory)(const String params[]);
         LoggingDevice* (*factory)(const String params[]);
         char paramCount;
     };
-    const LoggingDeviceFactoryMap factoryMap[SUPPORTED_DEVICES] = { //Changed order for testing
-      {"21", &WindSpeedSensor::factory, 3}, //10 for testing - nothing
+    const LoggingDeviceFactoryMap factoryMap[SUPPORTED_DEVICES] = {
+      {"21", &WindSpeedSensor::factory, 3}, 
       {"20", &WindDirection::factory, 10},
       {"22", &GenericDigitalInput::factory, 3},
       {"23", &GenericAnalogInput::factory, 3}
@@ -46,11 +45,11 @@ class Brain {
     };
 
     void com_req(const String params[], char parmCount) {
-      Debugger::log("Request: ID = "+ params[0] + ", Alias = "+ params[1]);
-      if (params[0] == "") { //Parameter 0 missing = Alias is not defined
+      if (params[0] == NULL) { //Parameter 0 missing = Alias is not defined
         this->sendError(ERR_PARAMETER_MISSING);
         return;
       } //TODO: Check if this catches error case
+      Debugger::log("Request: Alias = "+ params[0]);
       LoggingDevice* device = getDeviceByAlias(params[0]);
       if (!device) {
         this->sendError(ERR_INVALID_ALIAS);
@@ -60,7 +59,7 @@ class Brain {
      }
     void com_list(const String params[], char parmCount) {
       Serial.println("Device Count: "+ String(deviceCounter));
-      for (byte i = 0; i < deviceCounter; i++) {
+      for (uint8_t i = 0; i < deviceCounter; i++) {
         Serial.print("Alias: ");
         Serial.print(devices[i]->getAlias());
         Serial.print(", ID: ");
@@ -113,7 +112,7 @@ class Brain {
         //Not important
     }
     LoggingDevice* getDeviceByAlias(String alias) {
-      for (byte i = 0; i < deviceCounter; i++) {
+      for (uint8_t i = 0; i < deviceCounter; i++) {
         if (devices[i]->getAlias() == alias) {
           return devices[i];
         }

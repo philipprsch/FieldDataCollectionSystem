@@ -1,7 +1,6 @@
 #pragma once
 
 #include "LoggingDevice.h"
-#include <Array.h>
 
 
 class WindDirection : public LoggingDevice { //ID: 20

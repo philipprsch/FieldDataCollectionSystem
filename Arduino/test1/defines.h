@@ -19,7 +19,7 @@
     }                               \
   }                                 \
   Serial.println();
-  
+
 #else
   #define DEBUG_PRINT(x)   // Do nothing
   #define DEBUG_PRINTLN(x) // Do nothing

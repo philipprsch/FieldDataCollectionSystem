@@ -5,7 +5,10 @@ from defines import *
 import time
 
 class ControllerNotExists(Exception):
-    pass
+    def __init__(self, controller):
+        self.message = f"Controller {controller} does not exist in configuration file"
+
+        super().__init__(self.message)
 
 class ControllerError(Exception):
     def __init__(self, controller, resp, req="", **kwargs):
@@ -52,17 +55,16 @@ class Communicator:
     def writeCommand(self, command): #Sends command and waits until response is available
         #self.uart.write('\n')
         #self.uart.flush()
-        self.uart.read() #Clear RX Buffer
-        self.uart.write(command)
+        #self.uart.read() #Clear RX Buffer
+        self.uart.write(command+"\n")
         self.uart.flush()
         waitForRespnese(self.uart, UART_WAIT_FOR_RESPONSE)
     def req(self, alias):
         res = None
         for i in range(0, self.config.get("retries", fb=CONTROLLER_DEFAULT_RETRY_ATTEMPTS)): # type: ignore
-            command="/req "+alias+"\n"
+            command="/req "+alias
             self.writeCommand(command)
-            print(f"Request Attempt {str(i)}")
-            print(command)
+            print(f"Request Attempt {str(i)} Command: {command}")
             try: #TODO: Replace try-catch with more elegant .decode error parameter
                 res = self.uart.readline().decode('utf-8').rstrip()
             except Exception as e: #Catch decode Error, caused by poor connection
@@ -77,35 +79,29 @@ class Communicator:
         #time.sleep(1)
         res = None
         for i in range(0, self.config.get("retries", fb=CONTROLLER_DEFAULT_RETRY_ATTEMPTS)): # type: ignore
-            command = "/setup "+id+","+alias+","+','.join(str(arg) for arg in args)+"\n"
-            #print(self.list())
-            print(f"Setup Attempt {str(i)}")
-            print(command)
+            command = "/setup "+id+","+alias+","+','.join(str(arg) for arg in args)
+            print(f"Setup Attempt {str(i)} Command: {command}")
             self.writeCommand(command)
-            #print(self.list())
             try:
                 res = self.uart.readline().decode('utf-8').rstrip()
             except Exception as e: #Catch decode Error, caused by poor connection
                 print(f"Setup Attempt {str(i)} failed")
-                time.sleep(5) #Test wether failed setup causes reset
+                #time.sleep(5) #Test wether failed setup causes reset
                 pass
             else:
-                print("Response")
-                print(res)
-                #time.sleep(1)
-                #raise Exception #For Debugging
+                print(f"Response: {res}")
                 if res == "OK": return
             time.sleep_ms(CONTROLLER_DEFAULT_DELAY_ATTEMPTS)
         if res is None: raise ControllerNoResponseError(self.alias)
         raise ControllerError(self.alias, res, command)
 
     def reset(self):
-        self.uart.write("/reset\n")
+        self.uart.write("/reset")
 
     def list(self):
         numBytes = 0
         out = ""
-        command = "/list\n"
+        command = "/list"
         self.writeCommand(command)
         if self.uart.any():
             numBytes = self.uart.readinto(self.rxBuffer)

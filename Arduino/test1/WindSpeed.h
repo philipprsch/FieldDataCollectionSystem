@@ -12,7 +12,7 @@ class WindSpeedSensor : public LoggingDevice { //ID: 21
   volatile int rotationsCounter;
   unsigned long lastCounterReset;
   public:
-  WindSpeedSensor(String id, String alias, char pin) : LoggingDevice(id, alias) { //Changed to cahr
+  WindSpeedSensor(String id, String alias, uint8_t pin) : LoggingDevice(id, alias) { //Changed to cahr
     DEBUG_PRINT("Constructor: Memory: ");
     DEBUG_PRINTLN(freeMemory());
     this->pin = pin;
